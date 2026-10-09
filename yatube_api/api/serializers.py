@@ -20,7 +20,10 @@ class CommentSerializer(serializers.ModelSerializer):
 
 class PostSerializer(serializers.ModelSerializer):
     author = serializers.ReadOnlyField(source='author.username')
-    group = serializers.PrimaryKeyRelatedField(queryset=Group.objects.all(), required=False, allow_null=True)
+    group = serializers.PrimaryKeyRelatedField(
+        queryset=Group.objects.all(),
+        required=False, allow_null=True
+    )
 
     class Meta:
         model = Post
