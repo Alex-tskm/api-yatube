@@ -1,0 +1,3 @@
+$kind: collection
+name: group_tests // No Auth
+order: 3000

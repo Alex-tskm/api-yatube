@@ -1,0 +1,34 @@
+$kind: http-request
+name: get_group_details // User
+url: http://127.0.0.1:8000/api/v1/groups/{{group_id}}/
+method: GET
+headers:
+  - key: Authorization
+    value: Token {{Token}}
+    disabled: true
+scripts:
+  - type: afterResponse
+    code: |-
+      const responseSchema = {
+          "type": "object",
+          "properties":{
+              "id": {"type": "number"},
+              "title": {"type": "string"},
+              "slug": {"type": "string"},
+              "description": {"type": "string"}
+          },
+          "required": ["id", "title", "slug", "description"],
+          "additionalProperties": false
+      };
+
+      pm.test("Статус-код ответа должен быть 200", function () {
+          pm.expect(
+              pm.response.status,
+              "На запрос зарегистрированного пользователя должен возвращаться ответ со статусом 200"
+          ).to.be.eql("OK");
+      });
+      pm.test('Структура ответа должна соответствовать ожидаемой', function () {
+          pm.response.to.have.jsonSchema(responseSchema);
+      });
+    language: text/javascript
+order: 2000

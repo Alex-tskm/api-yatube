@@ -1,0 +1,30 @@
+$kind: http-request
+name: get_token_for_regular_user // No Auth
+url: http://127.0.0.1:8000/api/v1/api-token-auth/
+method: POST
+body:
+  type: json
+  content: |-
+    {
+        "username": "regular_user",
+        "password": "iWannaBeAdmin"
+    }
+scripts:
+  - type: afterResponse
+    code: |
+      pm.test("Статус-код ответа должен быть 200", function () {
+          pm.expect(
+              pm.response.status,
+              "На POST-запрос с корректными данными должен возвращаться ответ со статусом 200"
+          ).to.be.eql("OK");
+      });
+      pm.test("Ответ должен содержать ключ `token`", function () {
+          pm.expect(
+              pm.response,
+              "Ответ должен содержать ключ `token`"
+          ).to.have.jsonBody("token");
+          pm.collectionVariables.set("userToken", pm.response.json().token);
+          pm.collectionVariables.set("userUsername", JSON.parse(request.data).username);
+      });
+    language: text/javascript
+order: 1000

@@ -1,0 +1,45 @@
+$kind: http-request
+name: create_comment_from_another_user // Admin
+url: http://127.0.0.1:8000/api/v1/posts/{{negative_test_post}}/comments/
+method: POST
+body:
+  type: json
+  content: |-
+    {
+        "author": "{{userToken}}",
+        "text": "Тестовый комментарий"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      const responseData = pm.response.json();
+      const responseSchema = {
+          "type": "object",
+          "required": ["id", "author", "text", "created", "post"],
+          "properties": {
+              "id": {"type": "number"},
+              "author": {"type": "string"},
+              "text": {"type": "string"},
+              "created": {"type": "string"},
+              "post": {"type": "number"}
+          },
+          "additionalProperties": false
+      };
+
+      pm.test("Статус-код ответа должен быть 201", function () {
+          pm.expect(
+              pm.response.status,
+              "Запрос зарегистрированного пользователя, содержащий данные для полей `text` и `author`, должен возвращать ответ со статусом 201"
+          ).to.be.eql("Created");
+      });
+      pm.test('Структура ответа должна соответствовать ожидаемой', function () {
+          pm.response.to.have.jsonSchema(responseSchema);
+      });
+      pm.test("Ответ должен содержать ожидаемые данные", function () {
+          pm.expect(responseData.author).to.eql(
+              pm.collectionVariables.get("adminUsername"),
+              "Убедитесь, что поле `author` содержит `username` пользователя, отправившего запрос"
+          );
+      });
+    language: text/javascript
+order: 2000

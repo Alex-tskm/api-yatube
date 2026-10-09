@@ -1,0 +1,22 @@
+$kind: http-request
+name: create_post_with_invalid_group // User
+url: http://127.0.0.1:8000/api/v1/posts/
+method: POST
+body:
+  type: json
+  content: |-
+    {
+        "text": "Пост с несуществующей группой",
+        "group": -1
+    }
+scripts:
+  - type: afterResponse
+    code: |
+      pm.test("Статус-код ответа должен быть 400", function () {
+          pm.expect(
+              pm.response.status,
+              "Если в запросе пользователя на создание поста в поле `group` содержится идентификатор несуществующей группы - должен вернуться ответ со статусом 400"
+          ).to.be.eql("Bad Request");
+      });
+    language: text/javascript
+order: 2000

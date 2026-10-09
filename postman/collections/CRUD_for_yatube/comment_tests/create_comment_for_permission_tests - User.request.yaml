@@ -1,0 +1,39 @@
+$kind: http-request
+name: create_comment_for_permission_tests // User
+url: http://127.0.0.1:8000/api/v1/posts/{{post_with_group}}/comments/
+method: POST
+body:
+  type: json
+  content: |-
+    {
+        "text": "Комментарий для проверки ограничения прав доступа"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      const responseData = pm.response.json();
+      const responseSchema = {
+          "type": "object",
+          "required": ["id", "author", "text", "created", "post"],
+          "properties": {
+              "id": {"type": "number"},
+              "author": {"type": "string"},
+              "text": {"type": "string"},
+              "created": {"type": "string"},
+              "post": {"type": "number"}
+          },
+          "additionalProperties": false
+      };
+
+      pm.test("Статус-код ответа должен быть 201", function () {
+          pm.expect(
+              pm.response.status,
+              "Корректный запрос зарегистрированного пользователя должен возвращать ответ со статусом 201"
+          ).to.be.eql("Created");
+      });
+      pm.test('Структура ответа должна соответствовать ожидаемой', function () {
+          pm.response.to.have.jsonSchema(responseSchema);
+          pm.collectionVariables.set("comment_id_for_permission_tests", responseData.id);
+      });
+    language: text/javascript
+order: 7000

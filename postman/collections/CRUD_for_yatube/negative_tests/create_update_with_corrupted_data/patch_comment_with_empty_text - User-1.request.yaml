@@ -1,0 +1,21 @@
+$kind: http-request
+name: patch_comment_with_empty_text // User
+url: http://127.0.0.1:8000/api/v1/posts/{{post_with_group}}/comments/{{comment_id_for_permission_tests}}/
+method: PATCH
+body:
+  type: json
+  content: |-
+    {
+        "text": ""
+    }
+scripts:
+  - type: afterResponse
+    code: |
+      pm.test("Статус-код ответа должен быть 400", function () {
+          pm.expect(
+              pm.response.status,
+              "Если в запросе автора на редактирование комментария в поле `text` содержится пустая строка - должен вернуться ответ со статусом 400"
+          ).to.be.eql("Bad Request");
+      });
+    language: text/javascript
+order: 6000

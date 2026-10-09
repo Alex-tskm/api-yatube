@@ -1,0 +1,21 @@
+$kind: http-request
+name: update_post_with_put_request // No Auth
+url: http://127.0.0.1:8000/api/v1/posts/{{post_with_group}}/
+method: PUT
+body:
+  type: json
+  content: |-
+    {
+        "text": "Незарегистрированный пользователь редактирует пост"
+    }
+scripts:
+  - type: afterResponse
+    code: |
+      pm.test("Статус-код ответа должен быть 401", function () {
+          pm.expect(
+              pm.response.status,
+              "Незарегистрированный пользователь не должен иметь возможности редактировать посты"
+          ).to.be.eql("Unauthorized");
+      });
+    language: text/javascript
+order: 5000

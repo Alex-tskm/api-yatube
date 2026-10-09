@@ -1,0 +1,15 @@
+$kind: http-request
+name: get_comments // No Auth
+url: http://127.0.0.1:8000/api/v1/posts/{{post_with_group}}/comments/
+method: GET
+scripts:
+  - type: afterResponse
+    code: |
+      pm.test("Статус-код ответа должен быть 401", function () {
+          pm.expect(
+              pm.response.status,
+              "Незарегистрированный пользователь не должен иметь возможности читать комментарии"
+          ).to.be.eql("Unauthorized");
+      });
+    language: text/javascript
+order: 2000

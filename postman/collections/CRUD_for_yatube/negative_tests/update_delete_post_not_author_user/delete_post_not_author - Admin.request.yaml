@@ -1,0 +1,15 @@
+$kind: http-request
+name: delete_post_not_author // Admin
+url: http://127.0.0.1:8000/api/v1/posts/{{post_with_group}}/
+method: DELETE
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Статус-код ответа должен быть 403", function () {
+          pm.expect(
+              pm.response.status,
+              "У пользователя не должно быть возможности удалять чужие посты"
+          ).to.be.eql("Forbidden");
+      });
+    language: text/javascript
+order: 3000

@@ -1,0 +1,15 @@
+$kind: http-request
+name: get_group_404 // Admin
+url: http://127.0.0.1:8000/api/v1/groups/99999/
+method: GET
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Статус-код ответа должен быть 404", function () {
+          pm.expect(
+              pm.response.status,
+              "Если в запросе к `/api/v1/groups/{group_id}/` указан id несуществующей группы, код ответа должен быть 404"
+          ).to.be.eql("Not Found");
+      });
+    language: text/javascript
+order: 1000

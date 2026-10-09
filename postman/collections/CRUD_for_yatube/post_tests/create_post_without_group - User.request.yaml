@@ -1,0 +1,55 @@
+$kind: http-request
+name: create_post_without_group // User
+url: http://127.0.0.1:8000/api/v1/posts/
+method: POST
+body:
+  type: json
+  content: |-
+    {
+        "text": "Пост зарегистрированного пользователя."
+    }
+scripts:
+  - type: afterResponse
+    code: |
+      const responseData = pm.response.json();
+      const responseSchema = {
+          "type": "object",
+          "required": ["id", "author", "text", "pub_date", "image", "group"],
+          "properties": {
+              "id": {"type": "number"},
+              "author": {"type": "string"},
+              "text": {"type": "string"},
+              "pub_date": {"type": "string"},
+              "image": {"type": ["string", "null"]},
+              "group": {"type": ["number", "null"]}
+          },
+          "additionalProperties": false
+      };
+
+      pm.test("Статус-код ответа должен быть 201", function () {
+          pm.expect(
+              pm.response.status,
+              "Зарегистрированный пользователь должен иметь возможность создать пост без указания группы"
+          ).to.be.eql("Created");
+      });
+      pm.test('Структура ответа должна соответствовать ожидаемой', function () {
+          pm.response.to.have.jsonSchema(responseSchema);
+      });
+      pm.test("Ответ должен содержать ожидаемые данные", function () {
+          pm.expect(responseData.author).to.eql(
+              pm.collectionVariables.get("userUsername"),
+              "Убедитесь, что поле `author` содержит `username` пользователя, отправившего запрос"
+          );
+          const requestData = JSON.parse(request.data);
+          pm.expect(responseData.text).to.eql(
+              requestData.text,
+              "Убедитесь, что поле `text` содержит текст, отправленный в запросе"
+          );
+          pm.expect(
+              responseData.group,
+              "Убедитесь, что поле `group` содержит `null`, если в запросе не передан id группы"
+          ).to.be.null;
+          pm.collectionVariables.set("post_without_group", responseData.id);
+      });
+    language: text/javascript
+order: 1000

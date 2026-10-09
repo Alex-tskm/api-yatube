@@ -1,0 +1,21 @@
+$kind: http-request
+name: update_comment_not_author_with_patch_request // Admin
+url: http://127.0.0.1:8000/api/v1/posts/{{post_with_group}}/comments/{{comment_id_for_permission_tests}}/
+method: PATCH
+body:
+  type: json
+  content: |-
+    {
+        "text": "Изменение чужого комментария"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Статус-код ответа должен быть 403", function () {
+          pm.expect(
+              pm.response.status,
+              "У пользователя не должно быть возможности изменять чужие комментарии"
+          ).to.be.eql("Forbidden");
+      });
+    language: text/javascript
+order: 1000

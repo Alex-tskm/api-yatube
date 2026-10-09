@@ -1,0 +1,21 @@
+$kind: http-request
+name: create_post_without_group // No Auth
+url: http://127.0.0.1:8000/api/v1/posts/
+method: POST
+body:
+  type: json
+  content: |-
+    {
+        "text": "Пост незарегистрированного пользователя"
+    }
+scripts:
+  - type: afterResponse
+    code: |
+      pm.test("Статус-код ответа должен быть 401", function () {
+          pm.expect(
+              pm.response.status,
+              "Незарегистрированный пользователь не должен иметь возможности создать пост"
+          ).to.be.eql("Unauthorized");
+      });
+    language: text/javascript
+order: 1000

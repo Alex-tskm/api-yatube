@@ -1,0 +1,47 @@
+$kind: http-request
+name: create_post_from_another_author // Admin
+url: http://127.0.0.1:8000/api/v1/posts/
+method: POST
+body:
+  type: json
+  content: |-
+    {
+        "author": "{{userToken}}",
+        "text": "Создаем пост от лица другого пользователя"
+    }
+scripts:
+  - type: afterResponse
+    code: |
+      const responseData = pm.response.json();
+      const responseSchema = {
+          "type": "object",
+          "required": ["id", "author", "text", "pub_date", "image", "group"],
+          "properties": {
+              "id": {"type": "number"},
+              "author": {"type": "string"},
+              "text": {"type": "string"},
+              "pub_date": {"type": "string"},
+              "image": {"type": ["string", "null"]},
+              "group": {"type": ["number", "null"]}
+          },
+          "additionalProperties": false
+      };
+
+      pm.test("Статус-код ответа должен быть 201", function () {
+          pm.expect(
+              pm.response.status,
+              "Запрос зарегистрированного пользователя, содержащий данные для полей `text` и `author`, должен возвращать ответ со статусом 201"
+          ).to.be.eql("Created");
+      });
+      pm.test('Структура ответа должна соответствовать ожидаемой', function () {
+          pm.response.to.have.jsonSchema(responseSchema);
+      });
+      pm.test("Ответ должен содержать ожидаемые данные", function () {
+          pm.expect(responseData.author).to.eql(
+              pm.collectionVariables.get("adminUsername"),
+              "Убедитесь, что поле `author` содержит `username` пользователя, отправившего запрос"
+          );
+          pm.collectionVariables.set("negative_test_post", responseData.id);
+      });
+    language: text/javascript
+order: 1000

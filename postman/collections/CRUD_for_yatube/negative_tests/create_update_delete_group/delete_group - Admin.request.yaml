@@ -1,0 +1,15 @@
+$kind: http-request
+name: delete_group // Admin
+url: http://127.0.0.1:8000/api/v1/groups/{{group_id}}/
+method: DELETE
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Статус-код ответа должен быть 405", function () {
+          pm.expect(
+              pm.response.status,
+              "API не должен предоставлять возможность удаления группы"
+          ).to.be.eql("Method Not Allowed");
+      });
+    language: text/javascript
+order: 4000

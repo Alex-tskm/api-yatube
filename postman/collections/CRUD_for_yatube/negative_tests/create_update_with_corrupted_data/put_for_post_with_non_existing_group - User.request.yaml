@@ -1,0 +1,22 @@
+$kind: http-request
+name: put_for_post_with_non_existing_group // User
+url: http://127.0.0.1:8000/api/v1/posts/{{post_with_group}}/
+method: PUT
+body:
+  type: json
+  content: |-
+    {
+        "text": "Запрос с некорректными данными для поля `group`",
+        "group": 99999
+    }
+scripts:
+  - type: afterResponse
+    code: |
+      pm.test("Статус-код ответа должен быть 400", function () {
+          pm.expect(
+              pm.response.status,
+              "Если запрос автора на редактирование поста содержит в поле `group` данные несуществующей группы - должен вернуться ответ со статусом 400"
+          ).to.be.eql("Bad Request");
+      });
+    language: text/javascript
+order: 4000

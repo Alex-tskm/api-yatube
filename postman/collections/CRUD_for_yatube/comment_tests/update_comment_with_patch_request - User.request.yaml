@@ -1,0 +1,49 @@
+$kind: http-request
+name: update_comment_with_patch_request // User
+url: http://127.0.0.1:8000/api/v1/posts/{{post_with_group}}/comments/{{comment_id}}/
+method: PATCH
+body:
+  type: json
+  content: |-
+    {
+        "text": "Новый текст для комментария"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      const responseData = pm.response.json();
+      const responseSchema = {
+          "type": "object",
+          "required": ["id", "author", "text", "created", "post"],
+          "properties": {
+              "id": {"type": "number"},
+              "author": {"type": "string"},
+              "text": {"type": "string"},
+              "created": {"type": "string"},
+              "post": {"type": "number"}
+          },
+          "additionalProperties": false
+      };
+
+      pm.test("Статус-код ответа должен быть 200", function () {
+          pm.expect(
+              pm.response.status,
+              "На корректный запрос автора комментария должен возвращаться ответ со статусом 200"
+          ).to.be.eql("OK");
+      });
+      pm.test('Структура ответа должна соответствовать ожидаемой', function () {
+          pm.response.to.have.jsonSchema(responseSchema);
+      });
+      pm.test("Ответ должен содержать ожидаемые данные", function () {
+          pm.expect(responseData.author).to.eql(
+              pm.collectionVariables.get("userUsername"),
+              "Убедитесь, что поле `author` содержит `username` пользователя, отправившего запрос"
+          );
+          const requestData = JSON.parse(request.data);
+          pm.expect(responseData.text).to.eql(
+              requestData.text,
+              "Убедитесь, что поле `text` содержит текст, отправленный в запросе"
+          );
+      });
+    language: text/javascript
+order: 4000

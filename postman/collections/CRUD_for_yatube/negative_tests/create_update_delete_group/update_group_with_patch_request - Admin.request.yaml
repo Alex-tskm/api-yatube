@@ -1,0 +1,23 @@
+$kind: http-request
+name: update_group_with_patch_request // Admin
+url: http://127.0.0.1:8000/api/v1/groups/{{group_id}}/
+method: PATCH
+body:
+  type: json
+  content: |-
+    {
+        "title": "Тестовая группа",
+        "slug": "test-group",
+        "description": "Проверка возможности создания группы"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Статус-код ответа должен быть 405", function () {
+          pm.expect(
+              pm.response.status,
+              "API не должен предоставлять возможность редактирования группы"
+          ).to.be.eql("Method Not Allowed");
+      });
+    language: text/javascript
+order: 2000

@@ -1,0 +1,15 @@
+$kind: http-request
+name: delete_post // User
+url: http://127.0.0.1:8000/api/v1/posts/{{post_without_group}}/
+method: DELETE
+scripts:
+  - type: afterResponse
+    code: |
+      pm.test("Статус-код ответа должен быть 204", function () {
+          pm.expect(
+              pm.response.status,
+              "На запрос автора поста должен возвращаться ответ со статусом 204"
+          ).to.be.eql("No Content");
+      });
+    language: text/javascript
+order: 7000

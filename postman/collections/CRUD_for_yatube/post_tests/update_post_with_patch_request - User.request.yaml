@@ -1,0 +1,55 @@
+$kind: http-request
+name: update_post_with_patch_request // User
+url: http://127.0.0.1:8000/api/v1/posts/{{post_without_group}}/
+method: PATCH
+body:
+  type: json
+  content: |-
+    {
+        "text": "Добавляем пост в группу",
+        "group": {{group_id}}
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      const responseData = pm.response.json();
+      const responseSchema = {
+          "type": "object",
+          "required": ["id", "author", "text", "pub_date", "image", "group"],
+          "properties": {
+              "id": {"type": "number"},
+              "author": {"type": "string"},
+              "text": {"type": "string"},
+              "pub_date": {"type": "string"},
+              "image": {"type": ["string", "null"]},
+              "group": {"type": ["number", "null"]}
+          },
+          "additionalProperties": false
+      };
+
+      pm.test("Статус-код ответа должен быть 200", function () {
+          pm.expect(
+              pm.response.status,
+              "На корректный запрос автора поста должен возвращаться ответ со статусом 200"
+          ).to.be.eql("OK");
+      });
+      pm.test('Структура ответа должна соответствовать ожидаемой', function () {
+          pm.response.to.have.jsonSchema(responseSchema);
+      });
+      pm.test("Ответ должен содержать ожидаемые данные", function () {
+          pm.expect(responseData.author).to.eql(
+              pm.collectionVariables.get("userUsername"),
+              "Убедитесь, что поле `author` содержит `username` пользователя, отправившего запрос"
+          );
+          const requestData = JSON.parse(request.data);
+          pm.expect(responseData.text).to.eql(
+              requestData.text,
+              "Убедитесь, что поле `text` содержит текст, отправленный в запросе"
+          );
+          pm.expect(responseData.group).to.eql(
+              requestData.group,
+              "Убедитесь, что поле `group` содержит id группы, отправленный в запросе"
+          );
+      });
+    language: text/javascript
+order: 5000

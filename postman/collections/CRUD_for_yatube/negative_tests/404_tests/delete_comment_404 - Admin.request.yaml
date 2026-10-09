@@ -1,0 +1,15 @@
+$kind: http-request
+name: delete_comment_404 // Admin
+url: http://127.0.0.1:8000/api/v1/posts/99999/comments/99999/
+method: DELETE
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Статус-код ответа должен быть 404", function () {
+          pm.expect(
+              pm.response.status,
+              "Если в запросе к `/api/v1/posts/{post_id}/comments/{commint_id}/` указаны id несуществующих объектов, код ответа должен быть 404"
+          ).to.be.eql("Not Found");
+      });
+    language: text/javascript
+order: 7000

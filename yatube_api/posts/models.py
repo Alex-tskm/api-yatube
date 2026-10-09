@@ -14,7 +14,7 @@ class Group(models.Model):
 
 
 class Post(models.Model):
-    text = models.TextField()
+    text = models.TextField(blank=False)
     pub_date = models.DateTimeField(
         'Дата публикации', auto_now_add=True
     )

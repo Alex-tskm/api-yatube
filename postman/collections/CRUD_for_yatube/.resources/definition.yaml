@@ -1,0 +1,39 @@
+$kind: collection
+description: ""
+variables:
+  - key: userToken
+    value: ""
+    disabled: false
+  - key: userUsername
+    value: ""
+    disabled: false
+  - key: adminToken
+    value: ""
+    disabled: false
+  - key: adminUsername
+    value: ""
+    disabled: false
+  - key: group_id
+    value: ""
+    disabled: false
+  - key: post_without_group
+    value: ""
+    disabled: false
+  - key: post_with_group
+    value: ""
+    disabled: false
+  - key: comment_id
+    value: ""
+    disabled: false
+  - key: comment_id_for_permission_tests
+    value: ""
+    disabled: false
+  - key: negative_test_post
+    value: ""
+    disabled: false
+  - key: auth_secret_12kv
+    secret: true
+    disabled: false
+  - key: auth_secret_0g3l
+    secret: true
+    disabled: false

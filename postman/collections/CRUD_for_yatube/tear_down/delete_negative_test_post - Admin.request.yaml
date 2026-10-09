@@ -1,0 +1,20 @@
+$kind: http-request
+name: delete_negative_test_post // Admin
+url: http://127.0.0.1:8000/api/v1/posts/{{negative_test_post}}/
+method: DELETE
+auth:
+  type: apikey
+  credentials:
+    value: "{{auth_secret_12kv}}"
+    key: Authorization
+scripts:
+  - type: afterResponse
+    code: |
+      pm.test("Статус-код ответа должен быть 204", function () {
+          pm.expect(
+              pm.response.status,
+              "На запрос автора поста должен возвращаться ответ со статусом 204"
+          ).to.be.eql("No Content");
+      });
+    language: text/javascript
+order: 2000
