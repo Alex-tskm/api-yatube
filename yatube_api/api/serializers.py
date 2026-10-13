@@ -10,7 +10,11 @@ class GroupSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    author = serializers.ReadOnlyField(source='author.username')
+    # Используем SlugRelatedField вместо ReadOnlyField
+    author = serializers.SlugRelatedField(
+        slug_field='username',
+        read_only=True
+    )
 
     class Meta:
         model = Comment
@@ -19,10 +23,14 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class PostSerializer(serializers.ModelSerializer):
-    author = serializers.ReadOnlyField(source='author.username')
+    author = serializers.SlugRelatedField(
+        slug_field='username',
+        read_only=True
+    )
     group = serializers.PrimaryKeyRelatedField(
         queryset=Group.objects.all(),
-        required=False, allow_null=True
+        required=False,
+        allow_null=True
     )
 
     class Meta:
